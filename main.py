@@ -1,41 +1,45 @@
-company = input("Company: ")
-position = input("Position: ")
-status = input("Status: ")
-location = input("Location: ")
-date = input("Date: ")
-link = input("Link: ")
-notes = input("Notes: ")
+from google.oauth2.credentials import Credentials
+import gspread
 
-application = {
-    "company": company,
-    "position": position,
-    "status": status,
-    "location": location,
-    "date": date,
-    "link": link,
-    "notes": notes
-}
+credentials = Credentials.from_authorized_user_file(
+    "token.json",
+    ["https://www.googleapis.com/auth/spreadsheets"]
+)
 
-row = [
-    application["company"],
-    application["position"],
-    application["status"],
-    application["location"],
-    application["date"],
-    application["link"],
-    application["notes"]
+client = gspread.authorize(credentials)
+
+spreadsheet = client.open_by_key(
+    "1h3hbBPRAsv9vNnYM8VDe-m38tWlxlfFiYeScgwGy9oo"
+)
+
+worksheet = spreadsheet.sheet1
+
+headers = [
+    "Company",
+    "Position",
+    "Status",
+    "Location",
+    "Date",
+    "Link",
+    "Notes"
 ]
 
-print("\nApplication:")
-print(f"Company: {company}")
-print(f"Position: {position}")
-print(f"Status: {status}")
-print(f"Location: {location}")
-print(f"Date: {date}")
-print(f"Link: {link}")
-if not notes:
-    print("No notes.")
-else:
-    print(f"Notes: {notes}")
+worksheet.append_row(headers)
 
-print(row)
+worksheet.format("A1:G1", {
+    "backgroundColor": {
+        "red": 0.1,
+        "green": 0.4,
+        "blue": 0.8
+    },
+    "textFormat": {
+        "bold": True,
+        "foregroundColor": {
+            "red": 1,
+            "green": 1,
+            "blue": 1
+        }
+    }
+})
+
+print("the headers were added")
