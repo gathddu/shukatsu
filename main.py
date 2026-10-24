@@ -1,9 +1,10 @@
 from google.oauth2.credentials import Credentials
 import gspread
 import questionary
+from auth import token_path
 
 credentials = Credentials.from_authorized_user_file(
-    "token.json",
+    str(token_path()),
     ["https://www.googleapis.com/auth/spreadsheets"]
 )
 
