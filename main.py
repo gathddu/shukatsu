@@ -14,32 +14,23 @@ spreadsheet = client.open_by_key(
 
 worksheet = spreadsheet.sheet1
 
-headers = [
-    "Company",
-    "Position",
-    "Status",
-    "Location",
-    "Date",
-    "Link",
-    "Notes"
+company = input("Company: ")
+position = input("Position: ")
+status = input("Status: ")
+location = input("Location: ")
+date = input("Date: ")
+link = input("Link: ")
+notes = input("Notes: ")
+
+row = [
+    company,
+    position,
+    status,
+    location,
+    date,
+    link,
+    notes
 ]
 
-worksheet.append_row(headers)
-
-worksheet.format("A1:G1", {
-    "backgroundColor": {
-        "red": 0.1,
-        "green": 0.4,
-        "blue": 0.8
-    },
-    "textFormat": {
-        "bold": True,
-        "foregroundColor": {
-            "red": 1,
-            "green": 1,
-            "blue": 1
-        }
-    }
-})
-
-print("the headers were added")
+worksheet.append_row(row)
+print("application added")
