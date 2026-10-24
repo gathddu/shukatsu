@@ -59,11 +59,44 @@ def add_application():
     worksheet.append_row(row)
     print("application added")
 
+def list_applications(status_filter=None):
+    path = token_path()
+    if not path.is_file():
+        raise SystemExit("not set up yet. run 'shukatsu init'.")
+
+    credentials = Credentials.from_authorized_user_file(str(path), SCOPES)
+    client = gspread.authorize(credentials)
+    worksheet = client.open_by_key(SPREADSHEET_ID).sheet1
+    applications = worksheet.get_all_records()
+
+    if status_filter is not None:
+        applications = [
+            application
+            for application in applications
+            if str(application.get("Status", "")).strip().casefold()
+            == status_filter.strip().casefold()
+        ]
+
+    if not applications:
+        print("no matches.")
+        return
+
+    for application in applications:
+        print(
+            f"{application.get('Company', '')} | "
+            f"{application.get('Position', '')} | "
+            f"{application.get('Status', '')} | "
+            f"{application.get('Location', '')} | "
+            f"{application.get('Date', '')} | "
+        )
+
 def main():
     parser = argparse.ArgumentParser(prog="shukatsu")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("init", help="set up google sign-in")
     commands.add_parser("add", help="add a job application")
+    list_command = commands.add_parser("list", help="list job applications")
+    list_command.add_argument("--status", help="filter by status")
 
     args = parser.parse_args()
 
@@ -72,6 +105,8 @@ def main():
             authenticate()
         elif args.command == "add":
             add_application()
+        elif args.command == "list":
+            list_applications(args.status)
     except KeyboardInterrupt:
         print("cancelled.")
         return 130
