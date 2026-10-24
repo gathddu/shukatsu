@@ -10,6 +10,9 @@ def token_path() -> Path:
     ).expanduser()
     return config_home / "shukatsu" / "token.json"
 
+def client_secrets_path() -> Path:
+    return token_path().with_name("credentials.json")
+
 def authenticate():
     flow = InstalledAppFlow.from_client_secrets_file(
         "credentials.json",
