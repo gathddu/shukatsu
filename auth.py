@@ -15,7 +15,7 @@ def client_secrets_path() -> Path:
 
 def authenticate():
     flow = InstalledAppFlow.from_client_secrets_file(
-        "credentials.json",
+        str(client_secrets_path()),
         SCOPES,
     )
 
