@@ -20,6 +20,7 @@
 	    python-pkgs.google-api-python-client
 	    python-pkgs.google-auth-oauthlib
 	    python-pkgs.gspread
+            python-pkgs.questionary
 	  ]))
         ];
       };
