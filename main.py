@@ -1,22 +1,15 @@
+import argparse
+import sys
+
 from google.oauth2.credentials import Credentials
 import gspread
 import questionary
-from auth import token_path
+from auth import authenticate, token_path
 
-credentials = Credentials.from_authorized_user_file(
-    str(token_path()),
-    ["https://www.googleapis.com/auth/spreadsheets"]
-)
+SPREADSHEET_ID = "1h3hbBPRAsv9vNnYM8VDe-m38tWlxlfFiYeScgwGy9oo"
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
-client = gspread.authorize(credentials)
-
-spreadsheet = client.open_by_key(
-    "1h3hbBPRAsv9vNnYM8VDe-m38tWlxlfFiYeScgwGy9oo"
-)
-
-worksheet = spreadsheet.sheet1
-
-status_options = [
+STATUS_OPTIONS = [
     "Pending",
     "Applied",
     "Interview Scheduled",
@@ -28,40 +21,61 @@ status_options = [
     "Offer",
 ]
 
-company = input("Company: ")
-position = input("Position: ")
-status = questionary.select(
-    "Status:",
-    choices=[
-        "Pending",
-        "Applied",
-        "Interview Scheduled",
-        "Interviewing",
-        "Interview Completed",
-        "Rejected",
-        "Ghosted",
-        "Dropped",
-        "Offer",
-    ],
-).ask()
+def add_application():
+    path = token_path()
+    if not path.is_file():
+        raise SystemExit("not set up yet. run 'shukatsu init'.")
 
-if status is None:
-    raise SystemExit("\nStatus selection was cancelled.")
+    credentials = Credentials.from_authorized_user_file(str(path), SCOPES)
+    client = gspread.authorize(credentials)
+    spreadsheet = client.open_by_key(SPREADSHEET_ID)
+    worksheet = spreadsheet.sheet1
 
-location = input("Location: ")
-date = input("Date: ")
-link = input("Link: ")
-notes = input("Notes: ")
+    company = input("Company: ")
+    position = input("Position: ")
+    status = questionary.select(
+        "Status:",
+        choices = STATUS_OPTIONS).ask()
 
-row = [
-    company,
-    position,
-    status,
-    location,
-    date,
-    link,
-    notes
-]
+    if status is None:
+        print("\nstatus selection was cancelled.")
+        return
 
-worksheet.append_row(row)
-print("application added")
+    location = input("Location: ")
+    date = input("Date: ")
+    link = input("Link: ")
+    notes = input("Notes: ")
+
+    row = [
+        company,
+        position,
+        status,
+        location,
+        date,
+        link,
+        notes
+    ]
+
+    worksheet.append_row(row)
+    print("application added")
+
+def main():
+    parser = argparse.ArgumentParser(prog="shukatsu")
+    commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("init", help="set up google sign-in")
+    commands.add_parser("add", help="add a job application")
+
+    args = parser.parse_args()
+
+    try:
+        if args.command == "init":
+            authenticate()
+        elif args.command == "add":
+            add_application()
+    except KeyboardInterrupt:
+        print("cancelled.")
+        return 130
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
