@@ -23,6 +23,7 @@
         name = "shukatsu";
         runtimeInputs = [ pythonEnv ];
         text = ''
+	  export PYTHONPATH="${./.}''${PYTHONPATH:+:$PYTHONPATH}"
           exec python ${./main.py} "$@"
         '';
       };
