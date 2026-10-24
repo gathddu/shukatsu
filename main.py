@@ -1,6 +1,6 @@
 from google.oauth2.credentials import Credentials
 import gspread
-from gspread.utils import ValidationConditionType
+import questionary
 
 credentials = Credentials.from_authorized_user_file(
     "token.json",
@@ -20,24 +20,33 @@ status_options = [
     "Applied",
     "Interview Scheduled",
     "Interviewing",
-    "interview Completed",
+    "Interview Completed",
     "Rejected",
     "Ghosted",
     "Dropped",
     "Offer",
 ]
 
-worksheet.add_validation(
-    "C2:C",
-    condition_type=ValidationConditionType.one_of_list,
-    values=status_options,
-    strict=True,
-    showCustomUi=True,
-)
-
 company = input("Company: ")
 position = input("Position: ")
-status = input("Status: ")
+status = questionary.select(
+    "Status:",
+    choices=[
+        "Pending",
+        "Applied",
+        "Interview Scheduled",
+        "Interviewing",
+        "Interview Completed",
+        "Rejected",
+        "Ghosted",
+        "Dropped",
+        "Offer",
+    ],
+).ask()
+
+if status is None:
+    raise SystemExit("\nStatus selection was cancelled.")
+
 location = input("Location: ")
 date = input("Date: ")
 link = input("Link: ")
